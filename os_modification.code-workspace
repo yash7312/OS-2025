@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"processinfo.h": "c",
+			"x86.h": "c"
+		}
+	}
+}

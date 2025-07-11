@@ -20,3 +20,26 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+
+// user defined syscall
+#define SYS_hello 22
+#define SYS_helloYou 23
+#define SYS_getNumProc 24
+#define SYS_getMaxPid 25
+#define SYS_getProcInfo 26
+
+#define SYS_setprio 27
+#define SYS_getprio 28
+
+
+#define SYS_welcomeFunction 29
+#define SYS_welcomeDone 30
+
+
+#define SYS_hellobhai 31
+
+
+#define SYS_numvp 32
+#define SYS_numpp 33
+
+#define SYS_mmap 34

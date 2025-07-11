@@ -33,7 +33,7 @@ fetchstr(uint addr, char **pp)
 {
   char *s, *ep;
   struct proc *curproc = myproc();
-
+  // cprintf("%d\n", curproc->sz);
   if(addr >= curproc->sz)
     return -1;
   *pp = (char*)addr;
@@ -104,6 +104,24 @@ extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
 
+extern int hello(void);
+extern int helloYou(void);
+
+extern int getNumProc(void);
+extern int getMaxPid(void);
+extern int getProcInfo(void);
+
+extern int setprio(void);
+extern int getprio(void);
+
+extern int sys_welcomeFunction(void);
+extern int sys_welcomeDone(void);
+
+extern int sys_hellobhai(void);
+
+extern int sys_numvp(void);
+extern int sys_mmap(void);
+
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
 [SYS_exit]    sys_exit,
@@ -126,6 +144,25 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+
+[SYS_hello]       hello,
+[SYS_helloYou]    helloYou,
+
+[SYS_getNumProc]  getNumProc,
+[SYS_getMaxPid]   getMaxPid,
+[SYS_getProcInfo] getProcInfo,
+
+[SYS_setprio]     setprio,
+[SYS_getprio]     getprio,
+[SYS_welcomeFunction] sys_welcomeFunction,
+[SYS_welcomeDone] sys_welcomeDone,
+
+[SYS_hellobhai] sys_hellobhai,
+
+[SYS_numvp] sys_numvp,
+[SYS_numpp] vm_numpp,
+
+[SYS_mmap] sys_mmap
 };
 
 void

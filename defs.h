@@ -186,5 +186,35 @@ void            switchkvm(void);
 int             copyout(pde_t*, uint, void*, uint);
 void            clearpteu(pde_t *pgdir, char *uva);
 
+// user defined, syscall.c
+int             hello(void);
+int             helloYou(void);
+int             getNumProc(void);
+int             getMaxPid(void);
+int             getProcInfo(void);
+struct processInfo
+{
+    int ppid;
+    int psize;
+    int numberContextSwitches;
+};
+
+int             setprio(void);
+int             getprio(void);
+
+// proc.c
+int             accessMaxPid(void);
+int             accessNumProc(void);
+void            accessProcInfo(int, struct processInfo*);
+
+void            access_setPrio(int);
+int             access_getPrio(void);
+
+int             welcomeFunction();
+int             welcomeDone();
+
+int             vm_numpp(void);
+
+
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

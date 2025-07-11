@@ -103,6 +103,11 @@ cprintf(char *fmt, ...)
     release(&cons.lock);
 }
 
+// void
+// hello(){
+//   cprintf("hello\n");
+// }
+
 void
 panic(char *s)
 {

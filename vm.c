@@ -216,6 +216,28 @@ loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz)
   return 0;
 }
 
+int
+vm_numpp(){
+  int num_pp = 0;
+  uint i = 0;
+  pde_t *pgdir = myproc()->pgdir;
+  pte_t *pte;
+
+  for(i=0; i<myproc()->sz; i+=PGSIZE){
+    if((pte = walkpgdir(pgdir, (void*) i, 0)) == 0){
+      panic("vm_numpp: address shouldn't exist");
+    }
+    // verify if a valid page
+    if((*pte & PTE_P) == 1){
+      num_pp++;
+    }
+    // cprintf("HIIIEEE\n");
+    // cprintf("pte: %p\n", pte);
+  }
+
+  return num_pp;
+}
+
 // Allocate page tables and physical memory to grow process from oldsz to
 // newsz, which need not be page aligned.  Returns new size or 0 on error.
 int

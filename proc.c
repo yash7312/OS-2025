@@ -6,6 +6,12 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+// #include "processInfo.h"
+
+#define MAX_PRIORITY 1000
+#define DEFAULT_PRIORITY 10
+
+#define PRIORITY_GRANULARITY 10
 
 struct {
   struct spinlock lock;
@@ -88,6 +94,11 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->numberContextSwitches = 0;
+  p->priority = DEFAULT_PRIORITY;
+  // p->resume_addr = 12;
+  // p->func_addr = 12;
+  p->welcome_eip = 0;
 
   release(&ptable.lock);
 
@@ -202,6 +213,15 @@ fork(void)
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
+  
+  //################# Part C ##################################
+  //If welcome_eip has been set then switch the eip to return to after the trap to welcome_eip
+  //Before switching save the return eip in return_eip
+  if(curproc->welcome_eip != 0) {
+    np->return_eip = np->tf->eip;
+    np->tf->eip = curproc->welcome_eip;
+  }
+  //##############################################################
 
   for(i = 0; i < NOFILE; i++)
     if(curproc->ofile[i])
@@ -325,34 +345,95 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+  int threshold;
   for(;;){
     // Enable interrupts on this processor.
+    threshold = 0;
     sti();
 
     // Loop over process table looking for process to run.
-    acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+    while(threshold < MAX_PRIORITY){
+      acquire(&ptable.lock);
+      for(p = ptable.proc; p<&ptable.proc[NPROC]; p++){
+        if(p->state != RUNNABLE || p->priority < threshold){
+          continue;
+        }
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
+        c->proc = p;
+        switchuvm(p);
+        p->state = RUNNING;
 
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
+        swtch(&(c->scheduler), p->context);
+        switchkvm();
 
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
+      }
+      release(&ptable.lock);
+
+      threshold += PRIORITY_GRANULARITY;
     }
-    release(&ptable.lock);
+    
+    
 
   }
+}
+
+// return the number of active processes
+int accessNumProc(){
+  struct proc *p;
+  
+  int num_proc = 0;
+  // Loop over process table looking for process to run.
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state != UNUSED) num_proc += 1;
+  }
+  release(&ptable.lock);
+
+  return num_proc;
+}
+
+// returns the max pid of the running processes
+int accessMaxPid(){
+  struct proc *p;
+  
+  int max_proc = 0;
+  // Loop over process table looking for process to run.
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid > max_proc) max_proc = p->pid;
+  }
+  release(&ptable.lock);
+
+  return max_proc;
+}
+
+void accessProcInfo(int pid, struct processInfo* p_info){
+  struct proc *p;
+  
+  // Loop over process table looking for process to run.
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    // cprintf("%d\n", p->pid);
+    if(p->pid == pid){
+      p_info->ppid = p->parent->pid;
+      p_info->psize = p->sz;
+      p_info->numberContextSwitches = p->numberContextSwitches;
+      break;
+    }
+  }
+  release(&ptable.lock);
+}
+
+
+void access_setPrio(int n){
+  myproc()->priority = (1000 > n) ? n : 1000;
+}
+
+int access_getPrio(){
+  return myproc()->priority;
 }
 
 // Enter scheduler.  Must hold only ptable.lock

@@ -49,6 +49,17 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+
+
+  // user defined
+  int numberContextSwitches;    // stores the number of context switches
+  int priority;                 // current priority of the process,
+                                // initialized while allocprc(), to 500
+  uint resume_addr;
+  uint func_addr;
+
+  uint welcome_eip;
+  uint return_eip;
 };
 
 // Process memory is laid out contiguously, low addresses first:

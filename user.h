@@ -1,3 +1,4 @@
+#include "types.h"
 struct stat;
 struct rtcdate;
 
@@ -37,3 +38,31 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+
+// user defined
+int hello();
+int helloYou();
+void hellobhai(int*);
+
+int getNumProc();
+int getMaxPid();
+int getProcInfo();
+
+struct processInfo
+{
+    int ppid;
+    int psize;
+    int numberContextSwitches;
+};
+
+int setprio();
+int getprio();
+
+void welcomeFunction(void*);
+void welcomeDone();
+
+// xv6 mem-mgmt
+int numvp(void);
+int numpp(void);
+
+uint mmap(int);

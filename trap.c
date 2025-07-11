@@ -47,6 +47,13 @@ trap(struct trapframe *tf)
   }
 
   switch(tf->trapno){
+  case T_PGFLT:
+    // allocate physical pages and run process again
+    uint trap_addr = rcr2();
+    uint flt_addr = PGROUNDDOWN(trap_addr);
+    allocuvm(myproc()->pgdir, flt_addr, flt_addr + PGSIZE);
+    break;
+
   case T_IRQ0 + IRQ_TIMER:
     if(cpuid() == 0){
       acquire(&tickslock);
@@ -77,6 +84,9 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
+
+  
+      
 
   //PAGEBREAK: 13
   default:
